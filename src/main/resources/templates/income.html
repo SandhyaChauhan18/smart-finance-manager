@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Income | SaveTrack</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/income.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="icon" href="/images/favicon.png" type="image/png">
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-success fixed-top shadow">
+  <div class="container-fluid d-flex justify-content-between">
+    <a class="navbar-brand fw-bold" th:href="'#'">SaveTrack</a>
+    <button class="btn btn-outline-light" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
+  </div>
+</nav>
+
+<div id="sidebar-wrapper">
+  <div class="sidebar-heading text-center pt-3 pb-1">
+    <img th:src="@{${user.profilePhoto}}" class="rounded-circle" border="2px" width="100" height="90" alt="Profile Photo" />
+    <i> <h6 class="mt-2" th:text="${user.name}">User Name</h6> </i>
+  </div>
+  <div class="list-group list-group-flush">
+    <a th:href="@{/profile}" id="profileLink" class="list-group-item list-group-item-action sidebar-link">👩‍💻 Profile</a>
+    <a th:href="@{/dashboard}" class="list-group-item list-group-item-action sidebar-link">📊 Dashboard</a>
+    <a th:href="@{/income}" class="list-group-item list-group-item-action sidebar-link">💰 Add Income</a>
+    <a th:href="@{/expense}" class="list-group-item list-group-item-action sidebar-link">💸 Add Expense</a>
+    <a th:href="@{/debt}" class="list-group-item list-group-item-action sidebar-link">🧾 Debt Recovery</a>
+    <a th:href="@{/export}" class="list-group-item list-group-item-action sidebar-link">📁 Export CSV Report</a>
+    <a th:href="@{/logout}" class="list-group-item list-group-item-action text-danger">🚪 Logout</a>
+  </div>
+</div>
+
+
+<div id="page-content-wrapper" class="container mt-5 pt-5">
+  <h2 class="text-success mb-4">Add New Income</h2>
+
+  <form id="addIncomeForm" class="row g-3 shadow p-4 mb-5 bg-white rounded">
+    <div class="col-md-6">
+      <label for="title" class="form-label">Description</label>
+      <input type="text" class="form-control" id="title" name="title" required placeholder="e.g. Freelance Project, Salary">
+    </div>
+
+    <div class="col-md-6">
+      <label for="amount" class="form-label">Amount (₹)</label>
+      <input type="number" class="form-control" id="amount" name="amount" required step="0.01" min="1" placeholder="e.g. 5000">
+    </div>
+
+    <div class="col-md-6">
+      <label for="date" class="form-label">Date</label>
+      <input type="date" class="form-control" id="date" name="date" required>
+    </div>
+
+    <div class="col-md-6">
+      <label for="category" class="form-label">Category</label>
+      <select class="form-select" id="category" name="category" required>
+        <option value="">Choose...</option>
+        <option value="Salary">Salary</option>
+        <option value="Freelancing">Freelancing</option>
+        <option value="Investment">Investment</option>
+        <option value="Gift">Gift</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="col-md-12" id="customCategoryDiv" style="display: none;">
+      <label for="customCategory" class="form-label">Specify Category</label>
+      <input type="text" class="form-control" id="customCategory" name="customCategory" placeholder="Enter custom category">
+    </div>
+
+    <div class="col-12 text-end">
+      <button type="submit" class="btn btn-success px-4">Add Income</button>
+    </div>
+  </form>
+
+  <h2 class="text-success mb-3">All Income Records</h2>
+  <div class="row mb-5">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-body">
+<!--          <h5 class="card-title">All Transactions</h5>-->
+          <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search transactions...">
+
+          <div class="d-flex justify-content-end mb-2 gap-2">
+            <button class="btn btn-outline-danger" onclick="sortByDate()">Sort by Date</button>
+            <button class="btn btn-outline-success" onclick="sortByAmount()">Sort by Amount</button>
+          </div>
+
+          <div class="table-responsive">
+            <table id="transactionsTable" class="table table-bordered table-hover table-striped">
+              <thead class="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody id="incomeTableBody">
+              <tr th:each="txn : ${transactions}">
+                <td th:text="${#temporals.format(txn.date, 'dd-MM-yyyy')}">01-06-2025</td>
+                <td th:text="${txn.type}">INCOME</td>
+                <td th:text="${txn.category}">Salary</td>
+                <td th:text="|₹ ${txn.amount}|">₹ 5000</td>
+                <td th:text="${txn.title}">June Salary</td>
+                <td>
+                  <button class="btn btn-warning edit-btn"
+                          th:attr="data-id=${txn.id},
+                                     data-date=${#temporals.format(txn.date, 'yyyy-MM-dd')},
+                                     data-type=${txn.type},
+                                     data-category=${txn.category},
+                                     data-amount=${txn.amount},
+                                     data-title=${txn.title}">
+                    Edit
+                  </button>
+                  <button class="btn btn-danger delete-btn"
+                          th:attr="data-id=${txn.id},
+                                     data-date=${#temporals.format(txn.date, 'dd-MM-yyyy')},
+                                     data-amount=${txn.amount}">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--  <h4 class="mt-5 text-success">Category-wise Summary</h4>-->
+  <h2 class="text-success mb-4">Category-wise Summary</h2>
+  <div class="card mt-4" style="max-width: 450px; margin: auto;">
+    <div class="card-body">
+<!--      <h5 class="card-title text-center">Income by Category</h5>-->
+      <div style="position: relative; height: 300px; width: 100%;">
+        <canvas id="incomePieChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+
+  <footer class="text-center text-muted py-4">
+    "The way to become rich is to put all your eggs in one basket and then watch that basket" — Andrew Carnegie
+  </footer>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content shadow rounded-3">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="editModalLabel">Edit Transaction</h5>
+        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="editTransactionForm">
+        <div class="modal-body">
+          <input type="hidden" id="editTransactionId" />
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="editDate" class="form-label">Date</label>
+              <input type="date" class="form-control" id="editDate" />
+            </div>
+            <div class="col-md-6">
+              <label for="editType" class="form-label">Type</label>
+              <select id="editType" class="form-select">
+                <option value="INCOME">Income</option>
+                <option value="EXPENSE">Expense</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="editCategory" class="form-label">Category</label>
+              <input type="text" class="form-control" id="editCategory" />
+            </div>
+            <div class="col-md-6">
+              <label for="editAmount" class="form-label">Amount</label>
+              <input type="number" class="form-control" id="editAmount" />
+            </div>
+            <div class="col-12">
+              <label for="editTitle" class="form-label">Description</label>
+              <textarea class="form-control" id="editTitle" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="submit" class="btn btn-success">Save Changes</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow rounded-3">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="deleteConfirmationText" class="mb-3"></p>
+        <input type="hidden" id="deleteTransactionId" />
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/income.js"></script>
+<!--<script src="/js/dashboard.js"></script>-->
+<script th:inline="javascript">
+  document.addEventListener("DOMContentLoaded", () => {
+  const currentPath = window.location.pathname;
+
+  document.querySelectorAll(".sidebar-link").forEach(link => {
+    if (link.getAttribute("href") === currentPath) {
+      link.classList.add("active");
+    }
+  });
+  });
+</script>
+
+</body>
+</html>

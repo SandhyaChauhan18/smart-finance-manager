@@ -1,0 +1,66 @@
+table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1fdf5;
+}
+
+.table-success th {
+    background-color: #d1e7dd !important;
+}
+
+.btn-outline-success:hover {
+    background-color: #198754;
+    color: #fff;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.modal-header.bg-success {
+    background-color: #198754 !important;
+}
+
+.modal-header.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.modal-content {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+#customCategoryDiv {
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto;
+    }
+}
+
+form.shadow {
+  background-color: #f9f9f9;
+  border-left: 5px solid #198754;
+  transition: box-shadow 0.3s ease;
+}
+
+form.shadow:hover {
+  box-shadow: 0 0 12px rgba(25, 135, 84, 0.2);
+}
+
+#categoryPieChart {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+#incomePieChart {
+  max-width: 100%;
+  height: auto !important;
+}
+

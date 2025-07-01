@@ -1,0 +1,37 @@
+.modal-header.bg-danger {
+    background-color: #198754 !important;
+}
+
+.modal-header.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.modal-content {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+#customCategoryDiv {
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto;
+    }
+}
+
+form.shadow {
+  background-color: #f9f9f9;
+  border-left: 5px solid #dc3545;
+  transition: box-shadow 0.3s ease;
+}
+
+form.shadow:hover {
+  box-shadow: 0 0 12px rgba(25, 135, 84, 0.2);
+}
+
+#incomePieChart {
+  max-width: 100%;
+  height: auto !important;
+}
