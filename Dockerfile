@@ -1,17 +1,36 @@
-FROM openjdk:17-jdk-slim
-
-# Install netcat
-RUN apt-get update && apt-get install -y netcat && apt-get clean
+# Build stage
+FROM eclipse-temurin:17-jdk AS build
 
 WORKDIR /app
 
-# Copy JAR and wait script
-COPY target/smart-finance-manager-0.0.1-SNAPSHOT.jar app.jar
-COPY wait-for-it.sh /wait-for-it.sh
-RUN chmod +x /wait-for-it.sh
+# Copy everything and build the JAR
+COPY . .
+RUN ./mvnw clean package -DskipTests
 
-# Correct entrypoint: pass host and port separately!
-ENTRYPOINT ["/wait-for-it.sh", "mysql", "3306", "--", "java", "-jar", "app.jar"]
+# Run stage
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+
+
+
+# FROM openjdk:17-jdk-slim
+
+# # Install netcat
+# RUN apt-get update && apt-get install -y netcat && apt-get clean
+
+# WORKDIR /app
+
+# # Copy JAR and wait script
+# COPY target/smart-finance-manager-0.0.1-SNAPSHOT.jar app.jar
+# COPY wait-for-it.sh /wait-for-it.sh
+# RUN chmod +x /wait-for-it.sh
+
+# # Correct entrypoint: pass host and port separately!
+# ENTRYPOINT ["/wait-for-it.sh", "mysql", "3306", "--", "java", "-jar", "app.jar"]
 
 
 
